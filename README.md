@@ -38,3 +38,28 @@ Goal!
 (7, 6, 5)
 python3 npuzzle-solve.py  0.03s user 0.00s system 96% cpu 0.034 total
 ```
+
+- Heapqの比較方法をf値が同じ場合はh値が小さい方を優先するようにした。
+```
+n-puzzle-re % time python npuzzle-solve.py
+Goal!
+46
+(1, 2, 3, 4)
+(12, 13, 14, 5)
+(11, 0, 15, 6)
+(10, 9, 8, 7)
+python3 npuzzle-solve.py  16.30s user 0.17s system 99% cpu 16.486 total
+```
+
+- closedリストをsetからdictに変更した。
+```
+n-puzzle-re % time python npuzzle-solve.py
+Goal!
+46
+(1, 2, 3, 4)
+(12, 13, 14, 5)
+(11, 0, 15, 6)
+(10, 9, 8, 7)
+python3 npuzzle-solve.py  14.86s user 0.17s system 99% cpu 15.062 total
+```
+

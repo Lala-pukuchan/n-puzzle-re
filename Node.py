@@ -26,6 +26,8 @@ class Node:
     def __lt__(self, other):
         """
         heapqでNodeをソートするための比較関数
+        f値が同じ場合は、h値が小さい方を優先する
+        f値が異なる場合は、f値が小さい方を優先する
         """
         if self.f == other.f:
             return self.h < other.h

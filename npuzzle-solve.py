@@ -19,7 +19,7 @@ def a_star_search(puzzle, goal):
     start_node = Node(puzzle, 0, None, goal)
     open_list = []
     heapq.heappush(open_list, start_node)
-    closed_list = set()
+    closed_list = {}
 
     while open_list:
         current_node = heapq.heappop(open_list)
@@ -31,12 +31,12 @@ def a_star_search(puzzle, goal):
                 print(row)
             return
 
-        closed_list.add(hash(current_node.puzzle))
+        closed_list[current_node.puzzle] = current_node
 
         for child in current_node.get_children():
             if hash(child.puzzle) not in closed_list:
                 heapq.heappush(open_list, child)
-                closed_list.add(hash(child.puzzle))
+                closed_list[hash(child.puzzle)] = child
 
 
 def read_puzzle(file_path):

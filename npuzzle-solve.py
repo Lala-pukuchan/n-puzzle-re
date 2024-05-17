@@ -19,7 +19,9 @@ def a_star_search(puzzle, goal):
     start_node = Node(puzzle, 0, None, goal)
     open_list = []
     heapq.heappush(open_list, start_node)
-    closed_list = {}
+    open_dict = {}
+    open_dict[start_node.puzzle] = start_node.f
+    closed_dict = {}
 
     while open_list:
         current_node = heapq.heappop(open_list)
@@ -31,17 +33,24 @@ def a_star_search(puzzle, goal):
                 print(row)
             return
 
-        closed_list[current_node.puzzle] = current_node
+        open_dict.pop(current_node.puzzle, None)
+        closed_dict[current_node.puzzle] = current_node
 
         for child in current_node.get_children():
-            if hash(child.puzzle) not in closed_list:
+            if child.puzzle in closed_dict:
+                continue
+            if child.puzzle in open_dict:
+                if open_dict[child.puzzle] < child.f:
+                    heapq.heappush(open_list, child)
+                    open_dict[child.puzzle] = child.f
+            else:
                 heapq.heappush(open_list, child)
-                closed_list[hash(child.puzzle)] = child
+                open_dict[child.puzzle] = child.f
 
 
 def read_puzzle(file_path):
     """
-    ファイルを読み込み、パズルを二次元配列に変換する
+    ファイルを読み込み、パズルをtupleに変換する
     """
     with open(file_path, "r") as file:
         lines = file.readlines()
@@ -52,33 +61,6 @@ def read_puzzle(file_path):
         puzzle.append(tuple(map(int, line.strip().split())))
 
     return size, tuple(puzzle)
-
-
-def read_puzzle_from_file(file_path):
-    """
-    ファイルを読み込み、パズルを二次元配列に変換する
-    """
-    with open(file_path, "r") as file:
-        lines = file.readlines()
-
-    dim = int(lines[0].strip())
-    puzzle = []
-    for line in lines[1:]:
-        puzzle.append([int(x) for x in line.split()])
-
-    return dim, puzzle
-
-
-def create_puzzle_from_file(file_path):
-    dim, puzzle = read_puzzle_from_file(file_path)
-
-    flat_puzzle = [item for sublist in puzzle for item in sublist]
-
-    shuffled_puzzle = []
-    for i in range(dim):
-        shuffled_puzzle.append(flat_puzzle[i * dim : (i + 1) * dim])
-
-    return shuffled_puzzle
 
 
 def main():

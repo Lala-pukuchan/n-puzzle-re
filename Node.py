@@ -19,9 +19,21 @@ class Node:
         self.puzzle = puzzle
         self.empty_space = self.find_empty_space(self.puzzle)
         self.g = depth
-        self.h = self.manhattan_heuristic()
+        if Node.heuristic_function == "hamming":
+            self.h = self.hamming_heuristic()
+        elif Node.heuristic_function == "manhattan":
+            self.h = self.manhattan_heuristic()
+        elif Node.heuristic_function == "linear_conflict":
+            self.h = self.linear_conflict_heuristic()
         self.f = self.g + self.h
         self.parent = parent
+
+    @staticmethod
+    def set_comparison_criteria(criteria):
+        """
+        nodeの比較基準を設定する
+        """
+        Node.comparison_criteria = criteria
 
     def __lt__(self, other):
         """
@@ -29,9 +41,22 @@ class Node:
         f値が同じ場合は、h値が小さい方を優先する
         f値が異なる場合は、f値が小さい方を優先する
         """
-        if self.f == other.f:
+        if Node.comparison_criteria == 'g':
+            return self.g < other.g
+        elif Node.comparison_criteria == 'h':
             return self.h < other.h
-        return self.f < other.f
+        else:
+            if self.f == other.f:
+                return self.h < other.h
+            else:
+                return self.f < other.f
+            
+    @staticmethod
+    def set_heuristic_function(function):
+        """
+        ヒューリスティック関数を設定する
+        """
+        Node.heuristic_function = function
 
     def __hash__(self):
         """
@@ -124,4 +149,32 @@ class Node:
                 if current_value != 0:
                     goal_i, goal_j = self.goal_puzzle_dic[current_value]
                     heuristic += abs(goal_i - i) + abs(goal_j - j)
+        return heuristic
+
+    def linear_conflict_heuristic(self):
+        """
+        リニアコンフリクトを考慮したヒューリスティック関数
+        リニアコンフリクト: ２つのタイルが同じ行または列にあり、正しい位置に並んでいない場合
+        1. マンハッタン距離を計算する
+        2. リニアコンフリクトを考慮して、マンハッタン距離を修正する
+        """
+        heuristic = self.manhattan_heuristic()
+        size = self.size
+        for i in range(size):
+            row = self.puzzle[i]
+            for j in range(size):
+                if row[j] != 0:
+                    goal_i, goal_j = self.goal_puzzle_dic[row[j]]
+                    if goal_i == i:
+                        for k in range(j + 1, size):
+                            if row[k] != 0:
+                                goal_k, _ = self.goal_puzzle_dic[row[k]]
+                                if goal_k == i and goal_j > goal_k:
+                                    heuristic += 2
+                    if goal_j == j:
+                        for k in range(i + 1, size):
+                            if self.puzzle[k][j] != 0:
+                                goal_k, _ = self.goal_puzzle_dic[self.puzzle[k][j]]
+                                if goal_k == j and goal_i > goal_k:
+                                    heuristic += 2
         return heuristic

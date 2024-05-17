@@ -57,7 +57,11 @@ def a_star_search(size, puzzle):
     9. 5に戻る。
     """
     goal_puzzle = get_goal_puzzle(size)
-    start_node = Node(puzzle, 0, None, goal_puzzle)
+    goal_puzzle_dic = {}
+    for i in range(size):
+        for j in range(size):
+            goal_puzzle_dic[goal_puzzle[i][j]] = (i, j)
+    start_node = Node(puzzle, 0, None, goal_puzzle_dic, size)
     open_list = []
     heapq.heappush(open_list, (start_node.f, start_node))
     closed_list = set()
@@ -95,8 +99,35 @@ def read_puzzle(file_path):
     return size, tuple(puzzle)
 
 
+def read_puzzle_from_file(file_path):
+    """
+    ファイルを読み込み、パズルを二次元配列に変換する
+    """
+    with open(file_path, "r") as file:
+        lines = file.readlines()
+
+    dim = int(lines[0].strip())
+    puzzle = []
+    for line in lines[1:]:
+        puzzle.append([int(x) for x in line.split()])
+
+    return dim, puzzle
+
+
+def create_puzzle_from_file(file_path):
+    dim, puzzle = read_puzzle_from_file(file_path)
+
+    flat_puzzle = [item for sublist in puzzle for item in sublist]
+
+    shuffled_puzzle = []
+    for i in range(dim):
+        shuffled_puzzle.append(flat_puzzle[i * dim : (i + 1) * dim])
+
+    return shuffled_puzzle
+
+
 def main():
-    file_path = "puzzle_3.txt"
+    file_path = "puzzle_4.txt"
     size, puzzle = read_puzzle(file_path)
     a_star_search(size, puzzle)
 

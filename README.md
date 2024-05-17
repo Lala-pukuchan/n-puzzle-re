@@ -26,3 +26,15 @@ Goal!
 (10, 9, 8, 7)
 python3 npuzzle-solve.py  75.29s user 0.67s system 99% cpu 1:15.99 total
 ```
+
+# 処理時間を短くする工夫他
+- ゴールの状態をキー:数値、値:マス目の位置の辞書型で持っておく。
+```
+n-puzzle-re % time python npuzzle-solve.py
+Goal!
+18
+(1, 2, 3)
+(8, 0, 4)
+(7, 6, 5)
+python3 npuzzle-solve.py  0.03s user 0.00s system 96% cpu 0.034 total
+```

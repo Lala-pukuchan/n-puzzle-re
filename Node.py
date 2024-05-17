@@ -1,5 +1,5 @@
 class Node:
-    def __init__(self, puzzle, depth, parent, goal_puzzle):
+    def __init__(self, puzzle, depth, parent, goal_puzzle_dic, size):
         """
         Nodeの初期化
         Node: ある時点でのパズルの状態
@@ -11,13 +11,14 @@ class Node:
             parent: 親Node
             goal_puzzle: ゴールのパズルの状態
         """
-        self.puzzle = puzzle
-        self.empty_space = self.find_empty_space(puzzle)
+        self.size = size
+        self.puzzle = tuple(tuple(row) for row in puzzle)
+        self.empty_space = self.find_empty_space(self.puzzle)
         self.g = depth
-        self.h = self.calculate_heuristic(goal_puzzle)
+        self.h = self.manhattan_heuristic(goal_puzzle_dic)
         self.f = self.g + self.h
         self.parent = parent
-        self.goal_puzzle = goal_puzzle
+        self.goal_puzzle_dic = goal_puzzle_dic
 
     def __lt__(self, other):
         """
@@ -84,20 +85,38 @@ class Node:
                 child_puzzle = self.get_child_puzzle(
                     self.puzzle, self.empty_space, direction
                 )
-                child_node = Node(child_puzzle, self.g + 1, self, self.goal_puzzle)
+                child_node = Node(
+                    child_puzzle, self.g + 1, self, self.goal_puzzle_dic, self.size
+                )
                 children.append(child_node)
         return children
 
-    def calculate_heuristic(self, goal_puzzle):
+    def calculate_heuristic(self, goal_puzzle_dic):
         """
         ヒューリスティック値（ゴールと現在のパズルの状態の差）を計算する
         1. 現状のパズルでループを回す
         2. ゴールのパズルと比較して、異なるセルの数をカウントする
         """
         heuristic = 0
-        for i in range(len(self.puzzle)):
-            for j in range(len(self.puzzle[i])):
-                if self.puzzle[i][j] != 0:
-                    goal_i, goal_j = divmod(goal_puzzle[i][j] - 1, len(self.puzzle))
-                    heuristic += abs(i - goal_i) + abs(j - goal_j)
+        size = self.size
+        for i in range(size):
+            for j in range(size):
+                if (i, j) != goal_puzzle_dic[self.puzzle[i][j]]:
+                    heuristic += 1
+        return heuristic
+
+    def manhattan_heuristic(self, goal_puzzle_dic):
+        """
+        マンハッタン距離を計算する
+        1. 現状のパズルでループを回す
+        2. 各セルの現在の位置とゴールの位置のマンハッタン距離を計算する
+        """
+        heuristic = 0
+        size = self.size
+        for i in range(size):
+            for j in range(size):
+                current_value = self.puzzle[i][j]
+                if current_value != 0:
+                    goal_i, goal_j = goal_puzzle_dic[current_value]
+                    heuristic += abs(goal_i - i) + abs(goal_j - j)
         return heuristic

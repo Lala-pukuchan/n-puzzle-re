@@ -40,7 +40,7 @@ def get_goal_puzzle(size):
             if puzzle[i][j] == size**2:
                 puzzle[i][j] = 0
 
-    return puzzle
+    return tuple(tuple(row) for row in puzzle)
 
 
 def a_star_search(size, puzzle):
@@ -62,24 +62,22 @@ def a_star_search(size, puzzle):
     heapq.heappush(open_list, (start_node.f, start_node))
     closed_list = set()
 
-    while True:
+    while open_list:
         _, current_node = heapq.heappop(open_list)
 
-        if current_node.h == 0:
+        if current_node.puzzle == goal_puzzle:
             print("Goal!")
             print(current_node.g)
             for row in current_node.puzzle:
                 print(row)
-            break
+            return
 
-        closed_list.add(str(current_node.puzzle))
+        closed_list.add(hash(current_node.puzzle))
 
-        children = current_node.get_children()
-
-        for child in children:
-            if str(child.puzzle) not in closed_list:
+        for child in current_node.get_children():
+            if hash(child.puzzle) not in closed_list:
                 heapq.heappush(open_list, (child.f, child))
-                closed_list.add(str(child.puzzle))
+                closed_list.add(hash(child.puzzle))
 
 
 def read_puzzle(file_path):
@@ -91,13 +89,10 @@ def read_puzzle(file_path):
 
     size = int(lines[0].strip())
     puzzle = []
-
     for line in lines[1:]:
-        row = line.strip().split()
-        row = [int(cell) for cell in row]
-        puzzle.append(row)
+        puzzle.append(tuple(map(int, line.strip().split())))
 
-    return size, puzzle
+    return size, tuple(puzzle)
 
 
 def main():

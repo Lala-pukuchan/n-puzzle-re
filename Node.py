@@ -14,7 +14,7 @@ class Node:
         self.puzzle = puzzle
         self.empty_space = self.find_empty_space(puzzle)
         self.g = depth
-        self.h = self.calc_heuristic(goal_puzzle)
+        self.h = self.calculate_heuristic(goal_puzzle)
         self.f = self.g + self.h
         self.parent = parent
         self.goal_puzzle = goal_puzzle
@@ -29,8 +29,7 @@ class Node:
         """
         パズルをハッシュ化する
         """
-        # return hash(self.puzzle)
-        return hash(str(self.puzzle))
+        return hash(self.puzzle)
 
     def __eq__(self, other):
         """
@@ -61,12 +60,12 @@ class Node:
         """
         i, j = empty_space
         di, dj = direction
-        child_puzzle = [row[:] for row in puzzle]
+        child_puzzle = [list(row) for row in puzzle]
         child_puzzle[i][j], child_puzzle[i + di][j + dj] = (
             child_puzzle[i + di][j + dj],
             child_puzzle[i][j],
         )
-        return child_puzzle
+        return tuple(tuple(row) for row in child_puzzle)
 
     def get_children(self):
         """
@@ -89,7 +88,7 @@ class Node:
                 children.append(child_node)
         return children
 
-    def calc_heuristic(self, goal_puzzle):
+    def calculate_heuristic(self, goal_puzzle):
         """
         ヒューリスティック値（ゴールと現在のパズルの状態の差）を計算する
         1. 現状のパズルでループを回す
@@ -98,6 +97,7 @@ class Node:
         heuristic = 0
         for i in range(len(self.puzzle)):
             for j in range(len(self.puzzle[i])):
-                if self.puzzle[i][j] != goal_puzzle[i][j]:
-                    heuristic += 1
+                if self.puzzle[i][j] != 0:
+                    goal_i, goal_j = divmod(goal_puzzle[i][j] - 1, len(self.puzzle))
+                    heuristic += abs(i - goal_i) + abs(j - goal_j)
         return heuristic

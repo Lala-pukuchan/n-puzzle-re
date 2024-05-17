@@ -18,8 +18,7 @@ def a_star_search(size, puzzle):
     9. 5に戻る。
     """
     goal = Goal(size)
-
-    start_node = Node(puzzle, 0, None, goal.goal_puzzle_dic, size)
+    start_node = Node(puzzle, 0, None, goal)
     open_list = []
     heapq.heappush(open_list, (start_node.f, start_node))
     closed_list = set()

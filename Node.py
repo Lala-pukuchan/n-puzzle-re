@@ -1,5 +1,5 @@
 class Node:
-    def __init__(self, puzzle, depth, parent, goal_puzzle_dic, size):
+    def __init__(self, puzzle, depth, parent, goal):
         """
         Nodeの初期化
         Node: ある時点でのパズルの状態
@@ -11,14 +11,15 @@ class Node:
             parent: 親Node
             goal_puzzle: ゴールのパズルの状態
         """
-        self.size = size
-        self.puzzle = tuple(tuple(row) for row in puzzle)
+        self.size = goal.size
+        self.puzzle = puzzle
         self.empty_space = self.find_empty_space(self.puzzle)
         self.g = depth
-        self.h = self.manhattan_heuristic(goal_puzzle_dic)
+        self.h = self.manhattan_heuristic(goal.goal_puzzle_dic)
         self.f = self.g + self.h
         self.parent = parent
-        self.goal_puzzle_dic = goal_puzzle_dic
+        self.goal_puzzle_dic = goal.goal_puzzle_dic
+        self.goal = goal
 
     def __lt__(self, other):
         """
@@ -86,7 +87,7 @@ class Node:
                     self.puzzle, self.empty_space, direction
                 )
                 child_node = Node(
-                    child_puzzle, self.g + 1, self, self.goal_puzzle_dic, self.size
+                    child_puzzle, self.g + 1, self, self.goal
                 )
                 children.append(child_node)
         return children

@@ -1,52 +1,13 @@
 from Node import Node
 import heapq
-
-
-def get_goal_puzzle(size):
-    """
-    ゴールとなるパズルを生成する
-    1. 左上から、螺旋状に、マス目を埋めていく。
-    2. 一番大きい数のあるマスを0に変換する。
-    """
-    puzzle = [[0] * size for _ in range(size)]
-    num = 1
-    left, right, top, bottom = 0, size - 1, 0, size - 1
-
-    while left <= right and top <= bottom:
-        for j in range(left, right + 1):
-            puzzle[top][j] = num
-            num += 1
-        top += 1
-
-        for i in range(top, bottom + 1):
-            puzzle[i][right] = num
-            num += 1
-        right -= 1
-
-        if top <= bottom:
-            for j in range(right, left - 1, -1):
-                puzzle[bottom][j] = num
-                num += 1
-            bottom -= 1
-
-        if left <= right:
-            for i in range(bottom, top - 1, -1):
-                puzzle[i][left] = num
-                num += 1
-            left += 1
-
-    for i in range(size):
-        for j in range(size):
-            if puzzle[i][j] == size**2:
-                puzzle[i][j] = 0
-
-    return tuple(tuple(row) for row in puzzle)
+from solve import Solve
+from Goal import Goal
 
 
 def a_star_search(size, puzzle):
     """
     A*アルゴリズムでパズルを解く
-    1. ゴールとなるパズルを生成する。
+    1. ゴールクラスを作成する。
     2. 初期位置でのNodeを作成して、openリストに入れる。(heapqを使うので、fで常にソートされる)
     3. 空のclosedリストを作成する。
     4. ループに入る。
@@ -56,12 +17,9 @@ def a_star_search(size, puzzle):
     8. 現状のNodeから、子Node群を生成し、既に訪れていない場合は、open/closedリストに入れる。
     9. 5に戻る。
     """
-    goal_puzzle = get_goal_puzzle(size)
-    goal_puzzle_dic = {}
-    for i in range(size):
-        for j in range(size):
-            goal_puzzle_dic[goal_puzzle[i][j]] = (i, j)
-    start_node = Node(puzzle, 0, None, goal_puzzle_dic, size)
+    goal = Goal(size)
+
+    start_node = Node(puzzle, 0, None, goal.goal_puzzle_dic, size)
     open_list = []
     heapq.heappush(open_list, (start_node.f, start_node))
     closed_list = set()
@@ -69,7 +27,7 @@ def a_star_search(size, puzzle):
     while open_list:
         _, current_node = heapq.heappop(open_list)
 
-        if current_node.puzzle == goal_puzzle:
+        if current_node.puzzle == goal.goal_puzzle:
             print("Goal!")
             print(current_node.g)
             for row in current_node.puzzle:
@@ -130,6 +88,9 @@ def main():
     file_path = "puzzle_4.txt"
     size, puzzle = read_puzzle(file_path)
     a_star_search(size, puzzle)
+    #heuristic = 1
+    #algo = 1
+    #tak = Solve(tak, model.model, model.model_dic, heuristic, greedy=algo == 2, uniform_cost=algo == 3)
 
 
 if __name__ == "__main__":

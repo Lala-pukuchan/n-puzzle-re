@@ -27,6 +27,8 @@ class Node:
         """
         heapqでNodeをソートするための比較関数
         """
+        if self.f == other.f:
+            return self.h < other.h
         return self.f < other.f
 
     def __hash__(self):

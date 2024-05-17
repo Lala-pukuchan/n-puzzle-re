@@ -1,30 +1,28 @@
 from Node import Node
 import heapq
-from solve import Solve
 from Goal import Goal
 
 
-def a_star_search(size, puzzle):
+def a_star_search(puzzle, goal):
     """
     A*アルゴリズムでパズルを解く
-    1. ゴールクラスを作成する。
-    2. 初期位置でのNodeを作成して、openリストに入れる。(heapqを使うので、fで常にソートされる)
+    1. 初期Node作成
+    2. f値で常にソートされるheapqを使い、openリストを作成する。
     3. 空のclosedリストを作成する。
     4. ループに入る。
-    5. openリストから先頭のNodeを取り出す。
-    6. 取り出したNodeがゴールと合致(h=0)していれば、終了。
-    7. 再度同じ場所に戻らないように、現状のNodeをclosedリストに入れる。
-    8. 現状のNodeから、子Node群を生成し、既に訪れていない場合は、open/closedリストに入れる。
-    9. 5に戻る。
+    4. openリストから先頭のNodeを取り出す。
+    5. 取り出したNodeがゴールと合致(h=0)していれば、終了。
+    6. 再度同じ場所に戻らないように、現状のNodeをclosedリストに入れる。
+    7. 現状のNodeから、子Node群を生成し、既に訪れていない場合は、open/closedリストに入れる。
+    8. 5に戻る。
     """
-    goal = Goal(size)
     start_node = Node(puzzle, 0, None, goal)
     open_list = []
-    heapq.heappush(open_list, (start_node.f, start_node))
+    heapq.heappush(open_list, start_node)
     closed_list = set()
 
     while open_list:
-        _, current_node = heapq.heappop(open_list)
+        current_node = heapq.heappop(open_list)
 
         if current_node.puzzle == goal.goal_puzzle:
             print("Goal!")
@@ -37,7 +35,7 @@ def a_star_search(size, puzzle):
 
         for child in current_node.get_children():
             if hash(child.puzzle) not in closed_list:
-                heapq.heappush(open_list, (child.f, child))
+                heapq.heappush(open_list, child)
                 closed_list.add(hash(child.puzzle))
 
 
@@ -84,12 +82,12 @@ def create_puzzle_from_file(file_path):
 
 
 def main():
+    """
+    ファイルを読み込んで、A*アルゴリズムでパズルを解く
+    """
     file_path = "puzzle_4.txt"
     size, puzzle = read_puzzle(file_path)
-    a_star_search(size, puzzle)
-    #heuristic = 1
-    #algo = 1
-    #tak = Solve(tak, model.model, model.model_dic, heuristic, greedy=algo == 2, uniform_cost=algo == 3)
+    a_star_search(puzzle, Goal(size))
 
 
 if __name__ == "__main__":

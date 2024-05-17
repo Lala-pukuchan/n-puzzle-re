@@ -3,23 +3,25 @@ class Node:
         """
         Nodeの初期化
         Node: ある時点でのパズルの状態
-            puzzle: パズルの状態
-            empty_space: 空きスペースの座標
-            g: 現状のコスト(手数)
-            h: 推定コスト(ゴールと合致していないセルの数)
-            f: f = g + h
-            parent: 親Node
-            goal_puzzle: ゴールのパズルの状態
+            goal = ゴール状態
+            size = パズルのサイズ
+            goal_puzzle_dic = ゴールのパズルの辞書
+            puzzle = パズルの状態
+            empty_space = 空きスペースの座標
+            g = 現状のコスト(手数)
+            h = 推定コスト(ゴールと合致していないセルの数)
+            f = g + h
+            parent = 親Node
         """
+        self.goal = goal
         self.size = goal.size
+        self.goal_puzzle_dic = goal.goal_puzzle_dic
         self.puzzle = puzzle
         self.empty_space = self.find_empty_space(self.puzzle)
         self.g = depth
-        self.h = self.manhattan_heuristic(goal.goal_puzzle_dic)
+        self.h = self.manhattan_heuristic()
         self.f = self.g + self.h
         self.parent = parent
-        self.goal_puzzle_dic = goal.goal_puzzle_dic
-        self.goal = goal
 
     def __lt__(self, other):
         """
@@ -86,13 +88,11 @@ class Node:
                 child_puzzle = self.get_child_puzzle(
                     self.puzzle, self.empty_space, direction
                 )
-                child_node = Node(
-                    child_puzzle, self.g + 1, self, self.goal
-                )
+                child_node = Node(child_puzzle, self.g + 1, self, self.goal)
                 children.append(child_node)
         return children
 
-    def calculate_heuristic(self, goal_puzzle_dic):
+    def hamming_heuristic(self):
         """
         ヒューリスティック値（ゴールと現在のパズルの状態の差）を計算する
         1. 現状のパズルでループを回す
@@ -102,11 +102,11 @@ class Node:
         size = self.size
         for i in range(size):
             for j in range(size):
-                if (i, j) != goal_puzzle_dic[self.puzzle[i][j]]:
+                if (i, j) != self.goal_puzzle_dic[self.puzzle[i][j]]:
                     heuristic += 1
         return heuristic
 
-    def manhattan_heuristic(self, goal_puzzle_dic):
+    def manhattan_heuristic(self):
         """
         マンハッタン距離を計算する
         1. 現状のパズルでループを回す
@@ -118,6 +118,6 @@ class Node:
             for j in range(size):
                 current_value = self.puzzle[i][j]
                 if current_value != 0:
-                    goal_i, goal_j = goal_puzzle_dic[current_value]
+                    goal_i, goal_j = self.goal_puzzle_dic[current_value]
                     heuristic += abs(goal_i - i) + abs(goal_j - j)
         return heuristic

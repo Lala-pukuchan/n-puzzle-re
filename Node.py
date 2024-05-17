@@ -25,6 +25,19 @@ class Node:
         """
         return self.f < other.f
 
+    def __hash__(self):
+        """
+        パズルをハッシュ化する
+        """
+        # return hash(self.puzzle)
+        return hash(str(self.puzzle))
+
+    def __eq__(self, other):
+        """
+        パズルの状態が等しいかどうかを判定する
+        """
+        return self.puzzle == other.puzzle
+
     def find_empty_space(self, puzzle):
         """
         パズルを動かす起点となる空白マス(0)を探す
@@ -55,7 +68,7 @@ class Node:
         )
         return child_puzzle
 
-    def get_children(self, closed_list):
+    def get_children(self):
         """
         現在のNodeから、動かせる方向の子Nodeを生成する
         1. 子Nodeのリストを初期化する
@@ -69,22 +82,11 @@ class Node:
 
         for direction in directions:
             if self.is_valid_move(self.empty_space, direction):
-                print("valid move")
-                for row in self.puzzle:
-                    print(row)
-                print(direction)
                 child_puzzle = self.get_child_puzzle(
                     self.puzzle, self.empty_space, direction
                 )
-                already_visited = False
-                for node in closed_list:
-                    if node.puzzle == child_puzzle:
-                        print("closed")
-                        already_visited = True
-                        break
-                if not already_visited:
-                    child_node = Node(child_puzzle, self.g + 1, self, self.goal_puzzle)
-                    children.append(child_node)
+                child_node = Node(child_puzzle, self.g + 1, self, self.goal_puzzle)
+                children.append(child_node)
         return children
 
     def calc_heuristic(self, goal_puzzle):

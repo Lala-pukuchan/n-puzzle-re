@@ -175,6 +175,21 @@ def a_star_search(puzzle, goal):
             max_states_in_memory, len(open_dict) + len(closed_dict)
         )
 
+def check_solvable(puzzle, goal):
+    """
+    パズルが解けるかどうかを判定する
+    """
+    n = Node(puzzle, 0, None, goal)
+    diff_all = n.hamming_heuristic()
+    
+    empty_row, empty_col = n.find_empty_space(puzzle)
+    diff_empty = empty_row * (n.size - 1) - empty_col
+
+    if diff_all % 2 == diff_empty % 2:
+        return True
+    else:
+        return False
+
 
 def main():
     parser = argparse.ArgumentParser(description="Solve N-Puzzle problem.")
@@ -204,6 +219,12 @@ def main():
         return
 
     size, puzzle = read_puzzle(file_path)
+
+    goal = Goal(size)
+
+    if not check_solvable(puzzle, goal):
+        print("Error: Invalid puzzle. Please enter a solvable puzzle.")
+        return
 
     # Question 2
     print(
@@ -241,8 +262,6 @@ def main():
 
     if algorithm_choice == "4":
         algorithm_choice = random.choice(["1", "2", "3"])
-
-    goal = Goal(size)
 
     if algorithm_choice == "1":
         print("\033[93m" + "\033[1mA* Search\033[0m" + "\033[0m")

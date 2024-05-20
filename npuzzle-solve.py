@@ -1,20 +1,52 @@
+import argparse
+import random
+import os
+import sys
 from Node import Node
-import heapq
 from Goal import Goal
+import heapq
 
+def generate_random_puzzle(n=3):
+    numbers = list(range(n * n))
+    random.shuffle(numbers)
+    puzzle = []
+    for i in range(n):
+        puzzle.append(numbers[i * n:(i + 1) * n])
+    return puzzle
+
+def generate_random_puzzle_file():
+    directory = 'puzzles'
+    os.makedirs(directory, exist_ok=True)
+    
+    max_num = 0
+    for file in os.listdir(directory):
+        if file.startswith("temp_puzzle_") and file.endswith(".txt"):
+            num_part = file[len("temp_puzzle_"):-len(".txt")]
+            if num_part.isdigit():
+                num = int(num_part)
+                if num > max_num:
+                    max_num = num
+
+    new_filename = f'temp_puzzle_{max_num + 1}.txt'
+    full_path = os.path.join(directory, new_filename)
+    
+    puzzle = generate_random_puzzle()
+    with open(full_path, 'w') as f:
+        f.write(f"3\n")
+        for row in puzzle:
+            f.write(' '.join(map(str, row)) + "\n")
+    return full_path
+
+def read_puzzle(file_path):
+    with open(file_path, "r") as file:
+        lines = file.readlines()
+    size = int(lines[0].strip())
+    puzzle = []
+    for line in lines[1:]:
+        puzzle.append(tuple(map(int, line.strip().split())))
+    return size, tuple(puzzle)
 
 def uniform_cost_search(puzzle, goal):
-    """
-    Uniform Cost Searchアルゴリズムでパズルを解く
-    1. 初期Node作成
-    2. g値で常にソートされるheapqを使い、openリストを作成する。
-    3. 空のclosedリストを作成する。
-    4. ループに入る。
-    5. openリストから先頭のNodeを取り出す。
-    6. 取り出したNodeがゴールと合致(h=0)していれば、終了。
-    7. 再度同じ場所に戻らないように、現状のNodeをclosedリストに入れる。
-    8. 現状のNodeから、子Node群を生成し、既に訪れていない場合は、openリストに入れる。
-    """
     Node.set_comparison_criteria("g")
     start_node = Node(puzzle, 0, None, goal)
     open_list = []
@@ -46,19 +78,7 @@ def uniform_cost_search(puzzle, goal):
                 open_dict[child.puzzle] = child.g
                 heapq.heappush(open_list, (child.g, child))
 
-
 def greedy_best_first_search(puzzle, goal):
-    """
-    Greedy Best First Searchアルゴリズムでパズルを解く
-    1. 初期Node作成
-    2. h値で常にソートされるheapqを使い、openリストを作成する。
-    3. 空のclosedリストを作成する。
-    4. ループに入る。
-    5. openリストから先頭のNodeを取り出す。
-    6. 取り出したNodeがゴールと合致(h=0)していれば、終了。
-    7. 再度同じ場所に戻らないように、現状のNodeをclosedリストに入れる。
-    8. 現状のNodeから、子Node群を生成し、既に訪れていない場合は、openリストに入れる。
-    """
     Node.set_comparison_criteria("h")
     start_node = Node(puzzle, 0, None, goal)
     open_list = []
@@ -90,19 +110,7 @@ def greedy_best_first_search(puzzle, goal):
                 open_dict[child.puzzle] = child.h
                 heapq.heappush(open_list, (child.h, child))
 
-
 def a_star_search(puzzle, goal):
-    """
-    A*アルゴリズムでパズルを解く
-    1. 初期Node作成
-    2. f値で常にソートされるheapqを使い、openリストを作成する。
-    3. 空のclosedリストを作成する。
-    4. ループに入る。
-    5. openリストから先頭のNodeを取り出す。
-    6. 取り出したNodeがゴールと合致(h=0)していれば、終了。
-    7. 再度同じ場所に戻らないように、現状のNodeをclosedリストに入れる。
-    8. 現状のNodeから、子Node群を生成し、既に訪れていない場合は、openリストに入れる。
-    """
     Node.set_comparison_criteria("f")
     start_node = Node(puzzle, 0, None, goal)
     open_list = []
@@ -135,39 +143,87 @@ def a_star_search(puzzle, goal):
                 heapq.heappush(open_list, child)
                 open_dict[child.puzzle] = child.f
 
-
-def read_puzzle(file_path):
-    """
-    ファイルを読み込み、パズルをtupleに変換する
-    """
-    with open(file_path, "r") as file:
-        lines = file.readlines()
-
-    size = int(lines[0].strip())
-    puzzle = []
-    for line in lines[1:]:
-        puzzle.append(tuple(map(int, line.strip().split())))
-
-    return size, tuple(puzzle)
-
-
 def main():
-    """
-    ファイルを読み込んで、選択されたアルゴリズムでパズルを解く
-    """
-    file_path = "puzzle_3.txt"
+    parser = argparse.ArgumentParser(description="Solve N-Puzzle problem.")
+    
+    # Question 1
+    print("\033[95m" + 
+          "Do you want to use an existing map file or a randomly generated map?\n" +
+          "Please enter\n'\033[1m\033[95m1\033[0m\033[95m': for file\n'\033[1m\033[95m2\033[0m\033[95m': for random generate" + 
+          "\033[0m")
+    choice = input().strip().lower()
+    
+    if choice == '1':
+        print("\033[95m" + 
+              "Please enter the file name:" + 
+              "\033[0m")
+        file_path = input().strip()
+        if not os.path.isfile(file_path):
+            print("Error: Invalid file name.")
+            return
+    elif choice == '2':
+        print("\033[95m" + 
+              "\033[1mRandom choice\033[0m" + "\033[0m")
+        file_path = generate_random_puzzle_file()
+    else:
+        print("Error: Invalid choice. Please enter '\033[1m\033[95mf\033[0m\033[95m' or '\033[1m\033[95mr\033[0m\033[95m'.")
+        return
+    
     size, puzzle = read_puzzle(file_path)
     
-    # 三種類のヒューリスティック関数のどれかを選択する
-    Node.set_heuristic_function("manhattan")
-    # Node.set_heuristic_function("hamming")
-    # Node.set_heuristic_function("linear_conflict")
-
-    # 三種類のアルゴリズムのどれかを選択する
-    a_star_search(puzzle, Goal(size))
-    # greedy_best_first_search(puzzle, Goal(size))
-    # uniform_cost_search(puzzle, Goal(size)) # 4*4で全然終わらない
-
+    # Question 2
+    print("\033[96m" + 
+          "\nWhich heuristic function would you like to use?\n" + 
+          "'\033[1m\033[96m1\033[0m\033[96m': Manhattan\n'\033[1m\033[96m2\033[0m\033[96m': Hamming\n'\033[1m\033[96m3\033[0m\033[96m': Linear Conflict\n'\033[1m\033[96m4\033[0m\033[96m': Random" + 
+          "\033[0m")
+    heuristic_choice = input().strip().lower()
+    
+    if heuristic_choice == '4':
+        heuristic_choice = random.choice(['1', '2', '3'])
+    
+    if heuristic_choice == '1':
+        print("\033[96m" + 
+            "\033[1mManhattan\033[0m" + "\033[0m")
+        Node.set_heuristic_function("manhattan")
+    elif heuristic_choice == '2':
+        print("\033[96m" + 
+            "\033[1mHamming\033[0m" + "\033[0m")
+        Node.set_heuristic_function("hamming")
+    elif heuristic_choice == '3':
+        print("\033[96m" + 
+            "\033[1mLinear_conflict\033[0m" + "\033[0m")
+        Node.set_heuristic_function("linear_conflict")
+    else:
+        print("Error: Invalid heuristic choice.")
+        return
+    
+    # Question 3
+    print("\033[93m" + 
+          "\nWhich algorithm would you like to use?\n" + 
+          "'\033[1m\033[93m1\033[0m\033[93m': A* Search\n'\033[1m\033[93m2\033[0m\033[93m': Greedy Best-First Search\n'\033[1m\033[93m3\033[0m\033[93m': Uniform Cost Search\n'\033[1m\033[93m4\033[0m\033[93m': Random" + 
+          "\033[0m")
+    algorithm_choice = input().strip().lower()
+    
+    if algorithm_choice == '4':
+        algorithm_choice = random.choice(['1', '2', '3'])
+    
+    goal = Goal(size)
+    
+    if algorithm_choice == '1':
+        print("\033[93m" + 
+            "\033[1mA* Search\033[0m" + "\033[0m")
+        a_star_search(puzzle, goal)
+    elif algorithm_choice == '2':
+        print("\033[93m" + 
+            "\033[1mGreedy Search\033[0m" + "\033[0m")
+        greedy_best_first_search(puzzle, goal)
+    elif algorithm_choice == '3':
+        print("\033[93m" + 
+            "\033[1mUniform Cost Search\033[0m" + "\033[0m")
+        uniform_cost_search(puzzle, goal)
+    else:
+        print("Error: Invalid algorithm choice.")
+        return
 
 if __name__ == "__main__":
     main()

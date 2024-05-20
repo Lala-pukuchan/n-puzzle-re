@@ -1,4 +1,6 @@
 class Node:
+    heuristic_function = "manhattan"
+
     def __init__(self, puzzle, depth, parent, goal):
         """
         Nodeの初期化

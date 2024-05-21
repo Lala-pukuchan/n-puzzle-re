@@ -195,12 +195,10 @@ def main():
     parser = argparse.ArgumentParser(description="Solve N-Puzzle problem.")
 
     # Question 1
-    print(
-        "\033[95m"
-        + "Do you want to use an existing map file or a randomly generated map?\n"
-        + "Please enter\n'\033[1m\033[95m1\033[0m\033[95m': for file\n'\033[1m\033[95m2\033[0m\033[95m': for random generate"
-        + "\033[0m"
-    )
+    print("\033[95m" + 
+          "Do you want to use an existing map file or a randomly generated map?\n" +
+          "Please enter\n'\033[1m\033[95m1\033[0m\033[95m': for file\n'\033[1m\033[95m2\033[0m\033[95m': for random generate" + 
+          "\033[0m")
     choice = input().strip().lower()
 
     if choice == "1":
@@ -228,31 +226,6 @@ def main():
 
     # Question 2
     print(
-        "\033[96m"
-        + "\nWhich heuristic function would you like to use?\n"
-        + "'\033[1m\033[96m1\033[0m\033[96m': Manhattan\n'\033[1m\033[96m2\033[0m\033[96m': Hamming\n'\033[1m\033[96m3\033[0m\033[96m': Linear Conflict\n'\033[1m\033[96m4\033[0m\033[96m': Random"
-        + "\033[0m"
-    )
-    heuristic_choice = input().strip().lower()
-
-    if heuristic_choice == "4":
-        heuristic_choice = random.choice(["1", "2", "3"])
-
-    if heuristic_choice == "1":
-        print("\033[96m" + "\033[1mManhattan\033[0m" + "\033[0m")
-        Node.set_heuristic_function("manhattan")
-    elif heuristic_choice == "2":
-        print("\033[96m" + "\033[1mHamming\033[0m" + "\033[0m")
-        Node.set_heuristic_function("hamming")
-    elif heuristic_choice == "3":
-        print("\033[96m" + "\033[1mLinear_conflict\033[0m" + "\033[0m")
-        Node.set_heuristic_function("linear_conflict")
-    else:
-        print("Error: Invalid heuristic choice.")
-        return
-
-    # Question 3
-    print(
         "\033[93m"
         + "\nWhich algorithm would you like to use?\n"
         + "'\033[1m\033[93m1\033[0m\033[93m': A* Search\n'\033[1m\033[93m2\033[0m\033[93m': Greedy Best-First Search\n'\033[1m\033[93m3\033[0m\033[93m': Uniform Cost Search\n'\033[1m\033[93m4\033[0m\033[93m': Random"
@@ -265,12 +238,48 @@ def main():
 
     if algorithm_choice == "1":
         print("\033[93m" + "\033[1mA* Search\033[0m" + "\033[0m")
-        a_star_search(puzzle, goal)
+        Node.set_comparison_criteria("f")
     elif algorithm_choice == "2":
         print("\033[93m" + "\033[1mGreedy Search\033[0m" + "\033[0m")
-        greedy_best_first_search(puzzle, goal)
+        Node.set_comparison_criteria("h")
     elif algorithm_choice == "3":
         print("\033[93m" + "\033[1mUniform Cost Search\033[0m" + "\033[0m")
+        Node.set_comparison_criteria("g")
+    else:
+        print("Error: Invalid algorithm choice.")
+        return
+
+    if algorithm_choice in ["1", "2"]:
+        # Question 3
+        print(
+            "\033[96m"
+            + "\nWhich heuristic function would you like to use?\n"
+            + "'\033[1m\033[96m1\033[0m\033[96m': Manhattan\n'\033[1m\033[96m2\033[0m\033[96m': Hamming\n'\033[1m\033[96m3\033[0m\033[96m': Linear Conflict\n'\033[1m\033[96m4\033[0m\033[96m': Random"
+            + "\033[0m"
+        )
+        heuristic_choice = input().strip().lower()
+
+        if heuristic_choice == "4":
+            heuristic_choice = random.choice(["1", "2", "3"])
+
+        if heuristic_choice == "1":
+            print("\033[96m" + "\033[1mManhattan\033[0m" + "\033[0m")
+            Node.set_heuristic_function("manhattan")
+        elif heuristic_choice == "2":
+            print("\033[96m" + "\033[1mHamming\033[0m" + "\033[0m")
+            Node.set_heuristic_function("hamming")
+        elif heuristic_choice == "3":
+            print("\033[96m" + "\033[1mLinear_conflict\033[0m" + "\033[0m")
+            Node.set_heuristic_function("linear_conflict")
+        else:
+            print("Error: Invalid heuristic choice.")
+            return
+
+    if algorithm_choice == "1":
+        a_star_search(puzzle, goal)
+    elif algorithm_choice == "2":
+        greedy_best_first_search(puzzle, goal)
+    elif algorithm_choice == "3":
         uniform_cost_search(puzzle, goal)
     else:
         print("Error: Invalid algorithm choice.")

@@ -79,15 +79,15 @@ def uniform_cost_search(puzzle, goal):
     heapq.heappush(open_list, (start_node.g, start_node))
     open_dict = {start_node.puzzle: start_node.g}
     closed_dict = {}
+    total_opened_states = 0
+    max_states_in_memory = 0
 
     while open_list:
         _, current_node = heapq.heappop(open_list)
+        total_opened_states += 1
 
         if current_node.puzzle == goal.goal_puzzle:
-            print("Goal!")
-            print(current_node.g)
-            for row in current_node.puzzle:
-                print(row)
+            print_result(current_node, total_opened_states, max_states_in_memory)
             return
 
         open_dict.pop(current_node.puzzle, None)
@@ -104,6 +104,10 @@ def uniform_cost_search(puzzle, goal):
                 open_dict[child.puzzle] = child.g
                 heapq.heappush(open_list, (child.g, child))
 
+        max_states_in_memory = max(
+            max_states_in_memory, len(open_dict) + len(closed_dict)
+        )
+
 
 def greedy_best_first_search(puzzle, goal):
     Node.set_comparison_criteria("h")
@@ -112,15 +116,15 @@ def greedy_best_first_search(puzzle, goal):
     heapq.heappush(open_list, (start_node.h, start_node))
     open_dict = {start_node.puzzle: start_node.h}
     closed_dict = {}
+    total_opened_states = 0
+    max_states_in_memory = 0
 
     while open_list:
         _, current_node = heapq.heappop(open_list)
+        total_opened_states += 1
 
         if current_node.puzzle == goal.goal_puzzle:
-            print("Goal!")
-            print(current_node.g)
-            for row in current_node.puzzle:
-                print(row)
+            print_result(current_node, total_opened_states, max_states_in_memory)
             return
 
         open_dict.pop(current_node.puzzle, None)
@@ -136,6 +140,10 @@ def greedy_best_first_search(puzzle, goal):
             else:
                 open_dict[child.puzzle] = child.h
                 heapq.heappush(open_list, (child.h, child))
+
+        max_states_in_memory = max(
+            max_states_in_memory, len(open_dict) + len(closed_dict)
+        )
 
 
 def a_star_search(puzzle, goal):
@@ -175,13 +183,14 @@ def a_star_search(puzzle, goal):
             max_states_in_memory, len(open_dict) + len(closed_dict)
         )
 
+
 def check_solvable(puzzle, goal):
     """
     パズルが解けるかどうかを判定する
     """
     n = Node(puzzle, 0, None, goal)
     diff_all = n.hamming_heuristic()
-    
+
     empty_row, empty_col = n.find_empty_space(puzzle)
     diff_empty = empty_row * (n.size - 1) - empty_col
 

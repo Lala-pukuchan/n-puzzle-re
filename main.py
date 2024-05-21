@@ -186,13 +186,29 @@ def a_star_search(puzzle, goal):
 
 def check_solvable(puzzle, goal):
     """
-    パズルが解けるかどうかを判定する
+    下記の二つの偶奇が一致するかで、パズルが解けるかどうかを判定する
+    ①パズル内の各マス目位置を交換する回数の偶奇
+    ②空白マスの位置とゴールの空白マスの位置のマンハッタン距離の偶奇
     """
     n = Node(puzzle, 0, None, goal)
-    diff_all = n.hamming_heuristic()
+        
+    diff_all = 0
+    puzzle_list = []
+    goal_list = []
+
+    for line in puzzle:
+        puzzle_list += line
+    for line in goal.goal_puzzle:
+        goal_list += line
+
+    for i in range(len(puzzle_list)):
+        for j in range(i, len(puzzle_list)):
+            if goal_list.index(puzzle_list[i]) > goal_list.index(puzzle_list[j]):
+                puzzle_list[j], puzzle_list[i] = puzzle_list[i], puzzle_list[j]
+                diff_all += 1
 
     empty_row, empty_col = n.find_empty_space(puzzle)
-    diff_empty = empty_row * (n.size - 1) - empty_col
+    diff_empty = abs(empty_row - goal.goal_empty_row) + abs(empty_col - goal.goal_empty_col)
 
     if diff_all % 2 == diff_empty % 2:
         return True

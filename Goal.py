@@ -6,7 +6,7 @@ class Goal:
         goal_puzzle_dic: ゴールとなるパズルの辞書形式（キー: マス目の数字, 値: マス目の座標）
         """
         self.size = size
-        self.goal_puzzle = self.get_goal_puzzle(size)
+        self.goal_puzzle, self.goal_empty_row, self.goal_empty_col = self.get_goal_puzzle(size)
         self.goal_puzzle_dic = self.get_puzzle_dic(self.goal_puzzle)
 
     def get_goal_puzzle(self, size):
@@ -42,12 +42,14 @@ class Goal:
                     num += 1
                 left += 1
 
+        goal_empty_row, goal_empty_col = 0, 0
         for i in range(size):
             for j in range(size):
                 if puzzle[i][j] == size**2:
                     puzzle[i][j] = 0
+                    goal_empty_row, goal_empty_col = i, j
 
-        return tuple(tuple(row) for row in puzzle)
+        return tuple(tuple(row) for row in puzzle), goal_empty_row, goal_empty_col
 
     def get_puzzle_dic(self, puzzle):
         goal_puzzle_dic = {}

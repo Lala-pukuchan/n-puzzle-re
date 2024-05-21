@@ -219,26 +219,27 @@ def check_solvable(puzzle, goal):
 def main():
     parser = argparse.ArgumentParser(description="Solve N-Puzzle problem.")
 
-    # Question 1
+     # Question 1
     print("\033[95m" + 
           "Do you want to use an existing map file or a randomly generated map?\n" +
           "Please enter\n'\033[1m\033[95m1\033[0m\033[95m': for file\n'\033[1m\033[95m2\033[0m\033[95m': for random generate" + 
           "\033[0m")
     choice = input().strip().lower()
-
-    if choice == "1":
-        print("\033[95m" + "Please enter the file name:" + "\033[0m")
+    
+    if choice == '1':
+        print("\033[95m" + 
+              "Please enter the file name:" + 
+              "\033[0m")
         file_path = input().strip()
         if not os.path.isfile(file_path):
             print("Error: Invalid file name.")
             return
-    elif choice == "2":
-        print("\033[95m" + "\033[1mRandom choice\033[0m" + "\033[0m")
+    elif choice == '2':
+        print("\033[95m" + 
+              "\033[1mRandom choice\033[0m" + "\033[0m")
         file_path = generate_random_puzzle_file()
     else:
-        print(
-            "Error: Invalid choice. Please enter '\033[1m\033[95mf\033[0m\033[95m' or '\033[1m\033[95mr\033[0m\033[95m'."
-        )
+        print("Error: Invalid choice. Please enter '\033[1m\033[95mf\033[0m\033[95m' or '\033[1m\033[95mr\033[0m\033[95m'.")
         return
 
     size, puzzle = read_puzzle(file_path)
@@ -262,12 +263,18 @@ def main():
         algorithm_choice = random.choice(["1", "2", "3"])
 
     if algorithm_choice == "1":
+        if size >= 5:
+            print("Error: A* Search is not allowed for puzzles of size 5x5 or larger.")
+            return
         print("\033[93m" + "\033[1mA* Search\033[0m" + "\033[0m")
         Node.set_comparison_criteria("f")
     elif algorithm_choice == "2":
         print("\033[93m" + "\033[1mGreedy Search\033[0m" + "\033[0m")
         Node.set_comparison_criteria("h")
     elif algorithm_choice == "3":
+        if size >= 4:
+            print("Error: Uniform Cost Search is not allowed for puzzles of size 4x4 or larger.")
+            return
         print("\033[93m" + "\033[1mUniform Cost Search\033[0m" + "\033[0m")
         Node.set_comparison_criteria("g")
     else:

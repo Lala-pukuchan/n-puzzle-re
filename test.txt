@@ -1,4 +1,0 @@
-[95mDo you want to use an existing map file or a randomly generated map?
-Please enter
-'[1m[95m1[0m[95m': for file
-'[1m[95m2[0m[95m': for random generate[0m

@@ -15,18 +15,19 @@ def print_result(current_node, total_opened_states, max_states_in_memory):
     3. 移動回数
     4. 解のシーケンス
     """
-    print(f"complexity in time: {total_opened_states}")
-    print(f"complexity in size: {max_states_in_memory}")
-    print(f"number of moves: {current_node.g}")
-    solution_path = []
-    while current_node:
-        solution_path.append(current_node.puzzle)
-        current_node = current_node.parent
-    solution_path.reverse()
-    for state in solution_path:
-        for row in state:
-            print(row)
-        print()
+    with open("result", "w") as f:
+        print(f"complexity in time: {total_opened_states}", file=f)
+        print(f"complexity in size: {max_states_in_memory}", file=f)
+        print(f"number of moves: {current_node.g}", file=f)
+        solution_path = []
+        while current_node:
+            solution_path.append(current_node.puzzle)
+            current_node = current_node.parent
+        solution_path.reverse()
+        for state in solution_path:
+            for row in state:
+                print(row, file=f)
+            print("", file=f)
 
 
 def generate_random_puzzle(n=3):
@@ -271,8 +272,8 @@ def main():
         algorithm_choice = random.choice(["1", "2", "3"])
 
     if algorithm_choice == "1":
-        if size >= 5:
-            print("Error: A* Search is not allowed for puzzles of size 5x5 or larger.")
+        if size >= 4:
+            print("Error: A* Search is not allowed for puzzles of size 4x4 or larger.")
             return
         print("\033[93m" + "\033[1mA* Search\033[0m" + "\033[0m")
         Node.set_comparison_criteria("f")

@@ -1,0 +1,8 @@
+# This puzzle is solvable
+4
+#comment
+ 2  1 14 10 
+ 0  6 13 12# comment 
+11  4  7 15 
+ 9  5  3  8#comment 
+ #comment

@@ -65,10 +65,18 @@ def generate_random_puzzle_file():
 def read_puzzle(file_path):
     with open(file_path, "r") as file:
         lines = file.readlines()
-    size = int(lines[0].strip())
+
+    size = None
     puzzle = []
-    for line in lines[1:]:
-        puzzle.append(tuple(map(int, line.strip().split())))
+    for line in lines:
+        line = line.split('#')[0].strip()  # コメントを削除し、空白をトリム
+        if not line:
+            continue
+        if size is None:
+            size = int(line)
+        else:
+            puzzle.append(tuple(map(int, line.split())))
+
     return size, tuple(puzzle)
 
 
